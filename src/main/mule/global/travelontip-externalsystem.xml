@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="travelontip-externalsystemFlow" doc:id="dfbdafb0-a1e2-43e4-a6ff-7bfe203a18cc" >
+		<http:listener doc:name="Listener" doc:id="0297fc69-50eb-4027-843b-404ea9894855" path="/getroutes" config-ref="HTTP_Listener_config1"/>
+		<logger level="INFO" doc:name="Logger" doc:id="36c94a7f-0c83-4507-bfff-95697fad0422" message="received response for TravelonTip externalsystem"/>
+		<ee:transform doc:name="Transform Message" doc:id="43e9c68c-cc61-4704-af2d-89c09042ac26" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.uriParams.serviceType]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="serviceType" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.uriparam.serviceType
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="5334bddd-1adc-40a6-b70c-898315e07cb6" >
+			<when expression="#[vars.serviceType == 'routes']">
+				<logger level="INFO" doc:name="Logger" doc:id="c5d2d43b-2c1f-4bd3-a1f0-bac5dc9434b1" message="routes flow called for travelontip"/>
+				<flow-ref doc:name="Flow Reference" doc:id="de3c0d55-ea58-450e-b5dc-373a2e349758" name="TravelonTip-getroutes-implementationFlow"/>
+			</when>
+			<when expression='#[vars.serviceType =="schedules"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="b9c35005-b3ee-4e78-b971-8363e1167d1b" message="schedules for travelontip"/>
+				<flow-ref doc:name="Flow Reference" doc:id="a46fbbdb-8a18-496a-bad1-5f143a6fa1ec" name="TravelonTip-getSchedules-implementationFlow"/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="05953486-15f0-45ff-9ef3-44a7ed867a7b" message="uriparameter is not correct for travelontip.#[attributes.uriParams.payload]"/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="61ffee6f-bd07-4860-a1d0-92c49fee3876" message="sent response for travelontip exterenalsystem"/>
+		<error-handler>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="75debe43-a518-4142-9bba-ae428cf2683c" type="ANY">
+				<logger level="INFO" doc:name="Logger" doc:id="3348a45a-31e4-403a-b86c-acd8be3b17bc" message="error occurred for TravelonTip externalsystem"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

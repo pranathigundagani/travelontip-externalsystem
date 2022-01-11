@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="07600da3-df11-4398-9928-db06b968929a" >
+		<db:my-sql-connection host="${mysqldb.host}" port="${mysqldb.port}" user="${mysqldb.user}" password="${mysqldb.password}" database="${mysqldb.dbName}" />
+	</db:config>
+	<flow name="TravelonTip-getroutes-implementationFlow" doc:id="fec82959-fef6-4cde-888e-0096d6952975" >
+		<db:select doc:name="Select" doc:id="5e70e8a4-60aa-4127-ab22-aced879dfb7a" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from transportproject.routes where CompanyName = 'TravelOnTip';]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="cd8c2652-09a2-4d9d-bc49-9dec161f57a7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="serviceType" ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="27ebc71a-8ef3-47fe-8b04-6c8af1bfac74" message="travelontip routes"/>
+	</flow>
+</mule>

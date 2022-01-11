@@ -1,0 +1,12 @@
+http:
+ listener:
+  host: "localhost"
+  port: "1457"
+ 
+  
+mysqldb:
+  host: "localhost"
+  port: "3306"
+  user: "root"
+  password: "root"
+  dbName: "transportproject"
